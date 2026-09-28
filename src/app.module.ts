@@ -8,6 +8,8 @@ import { ApiResponseInterceptor } from './common/http/api-response/api-response.
 import { ApiExceptionFilter } from './common/http/api-exception/api-exception.filter.js';
 import { DatabaseModule } from './database/database.module.js';
 import { WishlistModule } from './wishlist/wishlist.module.js';
+import { ReservationsModule } from './reservations/reservations.module.js';
+import { LoansModule } from './loans/loans.module.js';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { WishlistModule } from './wishlist/wishlist.module.js';
     DatabaseModule,
     BooksModule,
     WishlistModule,
+    ReservationsModule,
+    LoansModule,
   ],
   controllers: [AppController],
   providers: [
