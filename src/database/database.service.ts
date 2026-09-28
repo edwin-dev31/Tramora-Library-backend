@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-  OnModuleDestroy,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Pool } from 'pg';
 import type { PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { loadDatabaseConfig } from './database.config.js';
@@ -14,14 +8,14 @@ export class DatabaseService implements OnModuleDestroy {
   private readonly logger = new Logger(DatabaseService.name);
   private readonly pool: Pool;
 
-  constructor(@Inject(ConfigService) private readonly config: ConfigService) {
-    const database = loadDatabaseConfig(this.config);
+  constructor() {
+    const database = loadDatabaseConfig();
     this.pool = new Pool({
       connectionString: database.connectionString,
       max: database.poolMax,
       ssl: database.ssl,
     });
-    this.pool.on('error', (error) => {
+    this.pool.on('error', (error: Error) => {
       this.logger.error(`Idle client error: ${error.message}`);
     });
   }

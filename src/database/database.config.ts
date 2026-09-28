@@ -1,7 +1,16 @@
 import { z } from 'zod';
-import type { ConfigService } from '@nestjs/config';
 
-const poolMaxSchema = z.coerce.number().int().min(1).max(20).default(10);
+const databaseEnvSchema = z.object({
+  DATABASE_URL: z
+    .string()
+    .min(1, 'DATABASE_URL is required and must be a valid connection string'),
+  DATABASE_POOL_MAX: z.coerce
+    .number({ error: 'DATABASE_POOL_MAX must be a number' })
+    .int()
+    .min(1)
+    .max(20)
+    .default(10),
+});
 
 export interface DatabaseConfig {
   connectionString: string;
@@ -10,9 +19,12 @@ export interface DatabaseConfig {
 }
 
 export const loadDatabaseConfig = (
-  config: ConfigService,
-): DatabaseConfig => ({
-  connectionString: config.getOrThrow<string>('DATABASE_URL'),
-  poolMax: poolMaxSchema.parse(config.get('DATABASE_POOL_MAX')),
-  ssl: { rejectUnauthorized: false },
-});
+  env: NodeJS.ProcessEnv = process.env,
+): DatabaseConfig => {
+  const parsed = databaseEnvSchema.parse(env);
+  return {
+    connectionString: parsed.DATABASE_URL,
+    poolMax: parsed.DATABASE_POOL_MAX,
+    ssl: { rejectUnauthorized: false },
+  };
+};
