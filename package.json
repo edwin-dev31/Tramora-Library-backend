@@ -9,19 +9,26 @@
   "scripts": {
     "build": "nest build",
     "deploy": "nest deploy",
-    "format": "prettier --write src/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "migration:run": "tsx scripts/migrate.ts up",
+    "migration:revert": "tsx scripts/migrate.ts revert",
     "lint": "oxlint src/"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
     "@nestjs/config": "^12.0.1",
     "@nestjs/core": "^12.0.1",
+    "@nestjs/jwt": "^12.0.2",
+    "@nestjs/passport": "^12.0.0",
     "@nestjs/platform-express": "^12.0.1",
+    "bcrypt": "^6.0.0",
     "dotenv": "^18.0.4",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
@@ -31,12 +38,15 @@
     "@nestjs/cli": "^12.0.0",
     "@nestjs/mau": "^0.2.6",
     "@nestjs/schematics": "^12.0.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
+    "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.23.1",
     "oxlint": "^1.58.0",
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.2"
   }
 }
