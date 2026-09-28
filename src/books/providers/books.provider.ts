@@ -11,4 +11,5 @@ export interface BookSearch {
 
 export abstract class BooksProvider {
   abstract search(search: BookSearch): Promise<Page<Book>>;
+  abstract findById(id: string): Promise<Book>;
 }
