@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:3000/api
+@token = PASTE_SECOND_USER_ACCESS_TOKEN_HERE
+@bookId = PASTE_GOOGLE_BOOKS_ID_HERE
+@reservationId = PASTE_RESERVATION_UUID_HERE
+
+### Reserve an unavailable book - 201 (duplicate or available book returns 422)
+POST {{baseUrl}}/reservations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookId": "{{bookId}}",
+  "notificationsEnabled": true
+}
+
+### Active reservations and estimated availability - 200
+GET {{baseUrl}}/reservations/active?limit=20&offset=0
+Authorization: Bearer {{token}}
+
+### Disable notifications - 200
+PUT {{baseUrl}}/reservations/{{reservationId}}/notifications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "notificationsEnabled": false
+}
+
+### Enable notifications - 200
+PUT {{baseUrl}}/reservations/{{reservationId}}/notifications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "notificationsEnabled": true
+}
+
+### Cancel own active reservation - 200
+DELETE {{baseUrl}}/reservations/{{reservationId}}
+Authorization: Bearer {{token}}
+
+### Collected, expired and cancelled reservations - 200
+GET {{baseUrl}}/reservations/history?limit=20&offset=0
+Authorization: Bearer {{token}}
+
+### Invalid notification value - 400
+PUT {{baseUrl}}/reservations/{{reservationId}}/notifications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "notificationsEnabled": "yes"
+}
+
+### Missing token - 401
+GET {{baseUrl}}/reservations/active
+
+### Invalid token - 401
+GET {{baseUrl}}/reservations/active
+Authorization: Bearer invalid-token

@@ -1,0 +1,61 @@
+@baseUrl = http://localhost:3000/api
+@token = PASTE_YOUR_ACCESS_TOKEN_HERE
+@bookId = PASTE_GOOGLE_BOOKS_ID_HERE
+@wishlistId = PASTE_WISHLIST_ENTRY_UUID_HERE
+
+### Add to wishlist - 201
+POST {{baseUrl}}/wishlist
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookId": "{{bookId}}",
+  "status": "want_to_read"
+}
+
+### All wishlist entries - 200
+GET {{baseUrl}}/wishlist?limit=20&offset=0
+Authorization: Bearer {{token}}
+
+### Filter by reading status - 200
+GET {{baseUrl}}/wishlist?status=reading
+Authorization: Bearer {{token}}
+
+### Start reading - 200
+PUT {{baseUrl}}/wishlist/{{wishlistId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "reading"
+}
+
+### Finish reading - 200
+PUT {{baseUrl}}/wishlist/{{wishlistId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+### Remove from wishlist - 200 (repeat to receive 404)
+DELETE {{baseUrl}}/wishlist/{{wishlistId}}
+Authorization: Bearer {{token}}
+
+### Invalid status - 400
+POST {{baseUrl}}/wishlist
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookId": "{{bookId}}",
+  "status": "invalid"
+}
+
+### Missing token - 401
+GET {{baseUrl}}/wishlist
+
+### Invalid token - 401
+GET {{baseUrl}}/wishlist
+Authorization: Bearer invalid-token

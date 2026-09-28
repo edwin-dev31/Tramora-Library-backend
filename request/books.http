@@ -1,0 +1,57 @@
+@baseUrl = http://localhost:3000/api
+@token = 
+
+# Log in using auth.http, then paste data.accessToken into @token above.
+# All book requests require Authorization: Bearer <token>.
+# Successful searches require the Google Books provider to be available.
+
+### Search all fields - 200
+GET {{baseUrl}}/books?query=Colombia
+Authorization: Bearer {{token}}
+
+### Search by title - 200
+GET {{baseUrl}}/books?query=One%20Hundred%20Years%20of%20Solitude&field=title
+Authorization: Bearer {{token}}
+
+### Search by author - 200
+GET {{baseUrl}}/books?query=Gabriel%20Garcia%20Marquez&field=author
+Authorization: Bearer {{token}}
+
+### Search by subject - 200
+GET {{baseUrl}}/books?query=History&field=subject
+Authorization: Bearer {{token}}
+
+### Search by ISBN - 200
+GET {{baseUrl}}/books?query=9780060883287&field=isbn
+Authorization: Bearer {{token}}
+
+### First page - 200
+GET {{baseUrl}}/books?query=Colombia&limit=10&offset=0
+Authorization: Bearer {{token}}
+
+### Next page - 200
+GET {{baseUrl}}/books?query=Colombia&limit=10&offset=10
+Authorization: Bearer {{token}}
+
+### Missing token - 401
+GET {{baseUrl}}/books?query=Colombia
+
+### Invalid token - 401
+GET {{baseUrl}}/books?query=Colombia
+Authorization: Bearer invalid-token
+
+### Missing search query - 400 (requires a valid token)
+GET {{baseUrl}}/books
+Authorization: Bearer {{token}}
+
+### Unsupported search field - 400 (requires a valid token)
+GET {{baseUrl}}/books?query=Colombia&field=invalid
+Authorization: Bearer {{token}}
+
+### Page size above the maximum of 40 - 400 (requires a valid token)
+GET {{baseUrl}}/books?query=Colombia&limit=41
+Authorization: Bearer {{token}}
+
+### Negative offset - 400 (requires a valid token)
+GET {{baseUrl}}/books?query=Colombia&offset=-1
+Authorization: Bearer {{token}}

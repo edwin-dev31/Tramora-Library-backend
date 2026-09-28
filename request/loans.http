@@ -1,0 +1,56 @@
+@baseUrl = http://localhost:3000/api
+@token = PASTE_YOUR_ACCESS_TOKEN_HERE
+@bookId = PASTE_GOOGLE_BOOKS_ID_HERE
+@loanId = PASTE_LOAN_UUID_HERE
+
+
+### Borrow a book - 201 (repeat while active to receive 422)
+POST {{baseUrl}}/loans
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookId": "{{bookId}}"
+}
+
+### Active and overdue loans - 200
+GET {{baseUrl}}/loans/active?limit=20&offset=0
+Authorization: Bearer {{token}}
+
+### Renew a loan - 200 (at most twice, no active reservations)
+PUT {{baseUrl}}/loans/{{loanId}}/renew
+Authorization: Bearer {{token}}
+
+### Return a book - 200 (repeat to receive 422)
+PUT {{baseUrl}}/loans/{{loanId}}/return
+Authorization: Bearer {{token}}
+
+### Loan history - 200
+GET {{baseUrl}}/loans/history?limit=20&offset=0
+Authorization: Bearer {{token}}
+
+### Filter history by loan date - 200
+GET {{baseUrl}}/loans/history?from=2026-01-01&to=2026-12-31
+Authorization: Bearer {{token}}
+
+### Books marked as reading in wishlist - 200
+GET {{baseUrl}}/loans/reading
+Authorization: Bearer {{token}}
+
+### Missing book ID - 400
+POST {{baseUrl}}/loans
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+### Invalid loan ID - 400
+PUT {{baseUrl}}/loans/not-a-uuid/renew
+Authorization: Bearer {{token}}
+
+### Missing token - 401
+GET {{baseUrl}}/loans/active
+
+### Invalid token - 401
+GET {{baseUrl}}/loans/active
+Authorization: Bearer invalid-token

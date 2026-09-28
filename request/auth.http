@@ -1,0 +1,134 @@
+@baseUrl = http://localhost:3000/api
+@email = shakira.mebarak@gmail.com
+@password = Biblioteca2026!
+@token = 
+
+### Register Shakira Isabel Mebarak Ripoll - 201
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Shakira Isabel Mebarak Ripoll",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Log in as Shakira - 200
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Register Gabriel García Márquez - 201
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Gabriel García Márquez",
+  "email": "gabriel.garcia.marquez@jala.edu",
+  "password": "{{password}}"
+}
+
+### Log in as Gabriel García Márquez - 200
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel.garcia.marquez@jala.edu",
+  "password": "{{password}}"
+}
+
+### Register Carlos Valderrama - 201
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Carlos Valderrama",
+  "email": "carlos.valderrama@jala.edu",
+  "password": "{{password}}"
+}
+
+### Log in as Carlos Valderrama - 200
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "carlos.valderrama@jala.edu",
+  "password": "{{password}}"
+}
+
+### Current user - 200 (paste a valid JWT into @token first)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### Refresh an active session - 200 (log in again if the token has expired)
+POST {{baseUrl}}/auth/refresh
+Authorization: Bearer {{token}}
+
+### Register a duplicate email - 409 (register Shakira first)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Shakira Isabel Mebarak Ripoll",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Register an email with a disallowed domain - 400
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Gabriel García Márquez",
+  "email": "gabriel.garcia.marquez@example.com",
+  "password": "{{password}}"
+}
+
+### Register with a short password - 400
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Shakira Isabel Mebarak Ripoll",
+  "email": "{{email}}",
+  "password": "1234567"
+}
+
+### Register with an invalid email - 400
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Carlos Valderrama",
+  "email": "invalid-email",
+  "password": "{{password}}"
+}
+
+### Log in with an incorrect password - 401
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "IncorrectPassword!"
+}
+
+### Log in as an unregistered user - 401 (do not register this email)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "sofia.vergara.unregistered@jala.edu",
+  "password": "{{password}}"
+}
+
+### Invalid token - 401
+GET {{baseUrl}}/auth/me
+Authorization: Bearer invalid-token
+
+### Missing token - 401
+GET {{baseUrl}}/auth/me
