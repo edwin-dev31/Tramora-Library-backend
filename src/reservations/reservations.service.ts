@@ -87,8 +87,8 @@ export class ReservationsService {
 
   async notifications(userId: string, id: string, enabled: boolean) {
     const result = await this.reservations.updateNotifications(
-      userId,
       id,
+      userId,
       enabled,
     );
     if (!result.rows[0]) throw new NotFoundException('Reservation not found.');

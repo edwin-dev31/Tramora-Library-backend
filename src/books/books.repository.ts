@@ -17,6 +17,12 @@ export interface BookRecord {
   available: boolean;
 }
 
+export interface AvailabilitySnapshot {
+  borrower_id: string | null;
+  reservation_user_id: string | null;
+  has_reservation: boolean;
+}
+
 @Injectable()
 export class BooksRepository extends BaseRepository<BookRecord> {
   constructor(@Inject(DatabaseService) database: DatabaseService) {
@@ -39,6 +45,37 @@ export class BooksRepository extends BaseRepository<BookRecord> {
       [providerId],
     );
     return result.rows[0] ?? null;
+  }
+
+  async availability(providerId: string, userId: string) {
+    // Ignore expired holds and inspect the next reader just as queue.sync does.
+    // This read neither imports a book nor changes the reservation queue.
+    const result = await this.database.query<AvailabilitySnapshot>(
+      `SELECT loan.user_id AS borrower_id, next_reservation.user_id AS reservation_user_id,
+        EXISTS (
+          SELECT 1 FROM "reservations" own
+          WHERE own.book_id = b.id AND own.user_id = $2
+            AND (own.status = 'waiting' OR (own.status = 'ready' AND own.expires_at > now()))
+        ) AS has_reservation
+       FROM "books" b
+       LEFT JOIN LATERAL (
+         SELECT user_id FROM "loans" WHERE book_id = b.id AND status IN ('active', 'overdue') LIMIT 1
+       ) loan ON true
+       LEFT JOIN LATERAL (
+         SELECT user_id FROM "reservations" WHERE book_id = b.id
+           AND (status = 'waiting' OR (status = 'ready' AND expires_at > now()))
+         ORDER BY position, created_at, id LIMIT 1
+       ) next_reservation ON true
+       WHERE b.provider = 'google_books' AND b.provider_id = $1`,
+      [providerId, userId],
+    );
+    return (
+      result.rows[0] ?? {
+        borrower_id: null,
+        reservation_user_id: null,
+        has_reservation: false,
+      }
+    );
   }
 
   async createReference(
