@@ -25,9 +25,6 @@ Thumbs.db
 test
 *.test.ts
 *.spec.ts
-tsconfig.json
-tsconfig.build.json
-nest-cli.json
 .prettierrc
 oxlint.json
 README.md
