@@ -24,6 +24,8 @@ export class GoogleBooksMapper {
     ) {
       return `in${field}`;
     }
+
+    if (field === BookSearchField.SUBJECT) return '';
     return field;
   }
 
