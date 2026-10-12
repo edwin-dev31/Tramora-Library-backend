@@ -4,10 +4,12 @@ import { BaseRepository } from '../common/database/base.repository.js';
 import type { RepositoryExecutor } from '../common/database/base.repository.js';
 import { DatabaseService } from '../database/database.service.js';
 import type { Book } from './models/book.model.js';
+import { parseBookProviderId } from './providers/book-provider-id.js';
+import type { BookProviderName } from './providers/book-provider-id.js';
 
 export interface BookRecord {
   id: string;
-  provider: 'google_books';
+  provider: BookProviderName;
   provider_id: string;
   title: string;
   author: string;
@@ -40,14 +42,16 @@ export class BooksRepository extends BaseRepository<BookRecord> {
   }
 
   async findByProviderId(providerId: string, executor?: RepositoryExecutor) {
+    const { provider, remoteId } = parseBookProviderId(providerId);
     const result = await this.executor(executor).query<BookRecord>(
-      `SELECT ${this.selectColumns()} FROM "books" WHERE provider = 'google_books' AND provider_id = $1`,
-      [providerId],
+      `SELECT ${this.selectColumns()} FROM "books" WHERE provider = $2 AND provider_id = $1`,
+      [remoteId, provider],
     );
     return result.rows[0] ?? null;
   }
 
   async availability(providerId: string, userId: string) {
+    const { provider, remoteId } = parseBookProviderId(providerId);
     // Ignore expired holds and inspect the next reader just as queue.sync does.
     // This read neither imports a book nor changes the reservation queue.
     const result = await this.database.query<AvailabilitySnapshot>(
@@ -66,8 +70,8 @@ export class BooksRepository extends BaseRepository<BookRecord> {
            AND (status = 'waiting' OR (status = 'ready' AND expires_at > now()))
          ORDER BY position, created_at, id LIMIT 1
        ) next_reservation ON true
-       WHERE b.provider = 'google_books' AND b.provider_id = $1`,
-      [providerId, userId],
+       WHERE b.provider = $3 AND b.provider_id = $1`,
+      [remoteId, userId, provider],
     );
     return (
       result.rows[0] ?? {
@@ -83,21 +87,23 @@ export class BooksRepository extends BaseRepository<BookRecord> {
     book: Book,
     executor: RepositoryExecutor,
   ): Promise<string> {
+    const { provider, remoteId } = parseBookProviderId(providerId);
     await this.executor(executor).query(
       `INSERT INTO "books" (provider, provider_id, title, author, description, cover_url)
-       VALUES ('google_books', $1, $2, $3, $4, $5)
+       VALUES ($6, $1, $2, $3, $4, $5)
        ON CONFLICT (provider, provider_id) DO NOTHING`,
       [
-        providerId,
+        remoteId,
         book.title.slice(0, 500),
         book.authors.join(', ').slice(0, 500),
         book.description,
         book.coverUrl,
+        provider,
       ],
     );
     const result = await this.executor(executor).query<{ id: string }>(
-      `SELECT id FROM "books" WHERE provider = 'google_books' AND provider_id = $1 FOR UPDATE`,
-      [providerId],
+      `SELECT id FROM "books" WHERE provider = $2 AND provider_id = $1 FOR UPDATE`,
+      [remoteId, provider],
     );
     return result.rows[0].id;
   }

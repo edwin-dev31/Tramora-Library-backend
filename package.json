@@ -16,7 +16,8 @@
     "start:prod": "node dist/main",
     "migration:run": "tsx scripts/migrate.ts up",
     "migration:revert": "tsx scripts/migrate.ts revert",
-    "lint": "oxlint src/"
+    "lint": "oxlint src/",
+    "test": "npm run build && node --test test/*.test.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",

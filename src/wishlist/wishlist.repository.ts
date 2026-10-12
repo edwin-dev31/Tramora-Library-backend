@@ -3,6 +3,7 @@ import { DatabaseService } from '../database/database.service.js';
 import { BaseRepository } from '../common/database/base.repository.js';
 import type { RepositoryExecutor } from '../common/database/base.repository.js';
 import type { WishlistQueryDto } from './wishlist.schemas.js';
+import { BOOK_PUBLIC_ID_SQL } from '../books/providers/book-provider-id.js';
 
 export interface WishlistRecord {
   id: string;
@@ -39,7 +40,7 @@ export class WishlistRepository extends BaseRepository<WishlistRecord> {
 
   async listForUser(userId: string, query: WishlistQueryDto) {
     const result = await this.database.query(
-      `SELECT ub.*, json_build_object('id', b.provider_id, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book
+      `SELECT ub.*, json_build_object('id', ${BOOK_PUBLIC_ID_SQL}, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book
        FROM "user_book" ub JOIN "books" b ON b.id = ub.book_id
        WHERE ub.user_id = $1 AND ub.wishlist AND ($2::text IS NULL OR ub.reading_status = $2)
        ORDER BY b.title, ub.id LIMIT $3 OFFSET $4`,

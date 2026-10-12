@@ -4,6 +4,7 @@ import { BaseRepository } from '../common/database/base.repository.js';
 import type { RepositoryExecutor } from '../common/database/base.repository.js';
 import { DatabaseService } from '../database/database.service.js';
 import type { ListQueryDto } from '../common/pagination/list-query.dto.js';
+import { BOOK_PUBLIC_ID_SQL } from '../books/providers/book-provider-id.js';
 
 export interface ReservationRecord {
   id: string;
@@ -79,7 +80,7 @@ export class ReservationsRepository extends BaseRepository<ReservationRecord> {
 
   async listForUser(userId: string, history: boolean, query: ListQueryDto) {
     const result = await this.database.query(
-      `SELECT r.*, json_build_object('id', b.provider_id, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book,
+      `SELECT r.*, json_build_object('id', ${BOOK_PUBLIC_ID_SQL}, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book,
          CASE WHEN r.status = 'ready' THEN r.ready_at
               WHEN r.status = 'waiting' THEN
                 GREATEST(now(), COALESCE(

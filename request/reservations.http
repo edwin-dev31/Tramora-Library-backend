@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000/api
 @token = PASTE_SECOND_USER_ACCESS_TOKEN_HERE
-@bookId = PASTE_GOOGLE_BOOKS_ID_HERE
+@bookId = PASTE_BOOK_ID_FROM_SEARCH_HERE
 @reservationId = PASTE_RESERVATION_UUID_HERE
 
 ### Reserve an unavailable book - 201 (duplicate or available book returns 422)

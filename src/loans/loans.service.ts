@@ -69,6 +69,13 @@ export class LoansService {
     return this.loans.listReading(userId, query.limit, query.offset);
   }
 
+  async detail(userId: string, id: string) {
+    await this.loans.markOverdueForUser(userId);
+    const loan = await this.loans.findDetail(userId, id);
+    if (!loan) throw new NotFoundException('Loan not found.');
+    return loan;
+  }
+
   async update(userId: string, id: string, action: 'renew' | 'return') {
     const existing = await this.loans.findOwned(userId, id);
     if (!existing) throw new NotFoundException('Loan not found.');

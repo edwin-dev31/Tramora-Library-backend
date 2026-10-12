@@ -25,6 +25,9 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+Book search uses Google Books first and Open Library when Google is unavailable.
+See [provider setup, migration and verification](docs/book-providers.md).
+
 ## Project setup
 
 ```bash
@@ -47,14 +50,8 @@ $ npm run start:prod
 ## Run tests
 
 ```bash
-# unit tests
+# build and run regression tests (no external API calls)
 $ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
 ## Deployment

@@ -66,6 +66,14 @@ export class LoansController {
     return this.loans.update(user.id, id, 'renew');
   }
 
+  @Get(':id')
+  detail(
+    @CurrentUser() user: AuthUser,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    return this.loans.detail(user.id, id);
+  }
+
   @Put(':id/return')
   returnBook(
     @CurrentUser() user: AuthUser,

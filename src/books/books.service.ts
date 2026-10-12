@@ -17,8 +17,16 @@ export class BooksService {
   }
 
   async detail(providerId: string, userId: string): Promise<BookDetail> {
+    const saved = await this.books.findByProviderId(providerId);
     const [book, snapshot] = await Promise.all([
-      this.provider.findById(providerId),
+      saved ? Promise.resolve({
+        id: providerId,
+        title: saved.title,
+        authors: saved.author ? [saved.author] : [],
+        description: saved.description,
+        coverUrl: saved.cover_url,
+        publishedDate: null,
+      }) : this.provider.findById(providerId),
       this.books.availability(providerId, userId),
     ]);
     return { ...book, availability: bookAvailability(snapshot, userId) };

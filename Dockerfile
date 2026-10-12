@@ -1,13 +1,6 @@
-FROM node:22-alpine AS base
-
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-
-RUN corepack enable
+FROM node:24-alpine AS builder
 
 WORKDIR /app
-
-FROM base AS builder
 
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -15,18 +8,20 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM base AS runner
-
-ENV NODE_ENV=production
-
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nestjs
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+
+RUN addgroup -S -g 1001 nodejs && \
+    adduser -S -u 1001 -G nodejs nestjs
+
+COPY package.json package-lock.json ./
+
+RUN npm ci --omit=dev && npm cache clean --force
+
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
 
 USER nestjs
 

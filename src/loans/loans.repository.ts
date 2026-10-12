@@ -4,6 +4,7 @@ import { BaseRepository } from '../common/database/base.repository.js';
 import type { RepositoryExecutor } from '../common/database/base.repository.js';
 import { DatabaseService } from '../database/database.service.js';
 import type { LoanHistoryDto } from './loans.schemas.js';
+import { BOOK_PUBLIC_ID_SQL } from '../books/providers/book-provider-id.js';
 
 export interface LoanRecord {
   id: string;
@@ -80,7 +81,7 @@ export class LoansRepository extends BaseRepository<LoanRecord> {
 
   async listForUser(userId: string, history: boolean, query: LoanHistoryDto) {
     const result = await this.database.query(
-      `SELECT l.*, json_build_object('id', b.provider_id, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book
+      `SELECT l.*, json_build_object('id', ${BOOK_PUBLIC_ID_SQL}, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book
        FROM "loans" l JOIN "books" b ON b.id = l.book_id
        WHERE l.user_id = $1 AND ((l.status = 'returned') = $2)
          AND ($3::date IS NULL OR l.loan_date >= $3::date)
@@ -100,7 +101,7 @@ export class LoansRepository extends BaseRepository<LoanRecord> {
 
   async listReading(userId: string, limit: number, offset: number) {
     const result = await this.database.query(
-      `SELECT ub.id, ub.reading_status, json_build_object('id', b.provider_id, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book
+      `SELECT ub.id, ub.reading_status, json_build_object('id', ${BOOK_PUBLIC_ID_SQL}, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book
        FROM "user_book" ub JOIN "books" b ON b.id = ub.book_id
        WHERE ub.user_id = $1 AND ub.reading_status = 'reading'
        ORDER BY b.title, ub.id LIMIT $2 OFFSET $3`,
@@ -113,6 +114,16 @@ export class LoansRepository extends BaseRepository<LoanRecord> {
     const result = await this.database.query<Pick<LoanRecord, 'book_id'>>(
       'SELECT book_id FROM "loans" WHERE id = $1 AND user_id = $2',
       [id, userId],
+    );
+    return result.rows[0] ?? null;
+  }
+
+  async findDetail(userId: string, id: string) {
+    const result = await this.database.query(
+      `SELECT l.*, json_build_object('id', ${BOOK_PUBLIC_ID_SQL}, 'title', b.title, 'author', b.author, 'coverUrl', b.cover_url) AS book
+       FROM "loans" l JOIN "books" b ON b.id = l.book_id
+       WHERE l.user_id = $1 AND l.id = $2`,
+      [userId, id],
     );
     return result.rows[0] ?? null;
   }
